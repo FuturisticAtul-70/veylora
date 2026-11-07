@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Veylora – Fashion Beyond Borders</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+  <a href="#home" class="logo" data-view="home" aria-label="Veylora">
+    <svg class="lotus" viewBox="0 0 60 40" fill="none" stroke="#8e3a4e" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+      <path pathLength="1" d="M30 4c-5 6-6 13 0 20 6-7 5-14 0-20z"/>
+      <path pathLength="1" d="M30 24c-9-1-15-6-17-13 8 0 14 4 17 13z"/>
+      <path pathLength="1" d="M30 24c9-1 15-6 17-13-8 0-14 4-17 13z"/>
+      <path pathLength="1" d="M30 26c-8 3-14 1-21-4 7-3 14-2 21 4z"/>
+      <path pathLength="1" d="M30 26c8 3 14 1 21-4-7-3-14-2-21 4z"/>
+    </svg>
+    <span class="logo-text">Veylora</span>
+    <span class="logo-tag">FASHION BEYOND BORDERS</span>
+  </a>
+
+  <nav class="nav">
+    <a href="#home" class="active" data-view="home">Home</a>
+    <a href="#about" data-view="about">About Us</a>
+    <a href="#collections" class="has-drop" data-view="collections">Collections
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </a>
+    <a href="#shop" data-view="shop">Shop</a>
+    <a href="#contact" data-view="contact">Contact Us</a>
+  </nav>
+
+  <div class="actions">
+    <button class="icon-btn" id="openSearch" aria-label="Search" type="button">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2b1a1e" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
+    </button>
+    <a href="#" class="signin" id="signinBtn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg>
+      <span id="signinLabel">Sign In</span>
+    </a>
+    <div class="umenu" id="umenu"><p class="uhi">Hi, <b id="uname"></b></p><p class="umail" id="umail"></p><button id="addrBtn" type="button">My addresses</button><button id="logoutBtn" type="button">Log out</button></div>
+    <a href="#" class="cart" aria-label="Cart">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2b1a1e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h3l2.6 12.2a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.1L21 7H6"/><circle cx="9.5" cy="20" r="1.3"/><circle cx="17.5" cy="20" r="1.3"/></svg>
+      <span class="badge">0</span>
+    </a>
+  </div>
+</header>
+
+<main class="hero" id="hero" data-page="home">
+
+  <svg class="floral f-tl" viewBox="0 0 120 280" fill="none" stroke="#b79a8c" stroke-width="1.2">
+    <path d="M10 0C30 40 50 80 55 140M55 140c20-20 50-30 65-28M40 100c-14-10-28-12-40-6M48 60c14-4 30-2 40 8"/>
+    <circle cx="20" cy="40" r="22" fill="#f1cfc4" stroke="none" opacity=".6"/>
+    <circle cx="70" cy="90" r="14" fill="#f1cfc4" stroke="none" opacity=".6"/>
+    <path d="M60 150c-8 14-8 30 0 44 8-14 8-30 0-44z" fill="#cfd3b8" stroke="none" opacity=".7"/>
+  </svg>
+  <svg class="floral f-bl" viewBox="0 0 200 300" fill="none" stroke="#cf8d96" stroke-width="1.3" stroke-linecap="round">
+    <path d="M10 290C40 220 90 150 150 90"/>
+    <path d="M30 250c-20-10-26-30-20-52 22 8 28 28 20 52z"/>
+    <path d="M60 210c-22-4-34-22-34-44 22 2 36 20 34 44z"/>
+    <path d="M90 170c-20 0-36-14-40-36 22-2 40 12 40 36z"/>
+    <path d="M45 250c20-6 40 0 56 16-20 10-42 8-56-16z"/>
+    <path d="M80 215c22-4 42 6 56 24-22 6-44 0-56-24z"/>
+    <path d="M115 175c20-6 38 2 50 18-20 8-40 4-50-18z"/>
+    <path d="M10 140c-8-14-4-34 8-50 8 16 6 36-8 50z"/>
+  </svg>
+  <svg class="floral f-br" viewBox="0 0 160 240" fill="none" stroke="#cf8d96" stroke-width="1.3" stroke-linecap="round">
+    <path d="M150 240C120 180 90 120 60 60"/>
+    <path d="M130 200c20-6 28-24 22-44-20 6-28 24-22 44z"/>
+    <path d="M105 160c20-4 30-20 26-40-20 4-30 20-26 40z"/>
+    <path d="M85 115c-20-4-30-20-26-40 20 4 30 20 26 40z"/>
+    <path d="M120 210c-18 2-34-8-40-24 18-4 36 6 40 24z"/>
+  </svg>
+
+  <div class="hero-text">
+    <p class="welcome"><span class="line"></span><span class="wtxt">WELCOME TO VEYLORA</span><span class="line"></span></p>
+    <h1>
+      <span class="ln"><span>Elevate your style,</span></span>
+      <span class="ln l2"><span>embrace <em>elegance.</em></span></span>
+    </h1>
+    <svg class="swoosh" viewBox="0 0 230 24" fill="none"><path pathLength="1" d="M2 20C60 6 150 2 228 4" stroke="#c7868f" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <p class="sub">Discover timeless Indo-Western fashion<br>for every occasion, crafted for the modern woman.</p>
+
+    <div class="cta-row">
+      <a href="#collections" class="btn-primary" data-view="collections">Shop Now
+        <svg class="arrow" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><polyline points="13 5 20 12 13 19"/></svg>
+      </a>
+      <a href="#collections" class="btn-explore" data-view="collections">
+        <span class="play"><svg width="20" height="20" viewBox="0 0 24 24" fill="#8e3a4e"><polygon points="7 4 20 12 7 20"/></svg></span>
+        Explore Collection
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-img" id="heroImg">
+    <div class="img-in"><img src="images/hero.jpg" alt="Model wearing an embroidered Indo-Western outfit"></div>
+  </div>
+
+  <section class="features">
+    <div class="feat">
+      <svg viewBox="0 0 64 48" fill="none" stroke="#8e3a4e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h32v26H4zM36 16h12l10 10v8H36z"/><circle cx="15" cy="37" r="5" fill="#fbeee9"/><circle cx="47" cy="37" r="5" fill="#fbeee9"/><path class="speed" d="M0 16h8M2 24h6"/></svg>
+      <div><strong>Free Shipping</strong><span>On Orders Above ₹999</span></div>
+    </div>
+    <div class="feat">
+      <svg viewBox="0 0 48 52" fill="none" stroke="#8e3a4e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M24 3 6 10v14c0 12 8 20 18 24 10-4 18-12 18-24V10z"/><polyline class="tick" pathLength="1" points="15 26 22 33 34 19"/></svg>
+      <div><strong>Secure Payments</strong><span>100% Secure Checkout</span></div>
+    </div>
+    <div class="feat">
+      <svg viewBox="0 0 52 52" fill="none" stroke="#8e3a4e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 28V24a18 18 0 0 1 36 0v4"/><rect x="4" y="26" width="9" height="14" rx="4"/><rect x="39" y="26" width="9" height="14" rx="4"/><path d="M43 40c0 6-6 8-14 8"/><circle cx="27" cy="48" r="2.5" fill="#8e3a4e"/></svg>
+      <div><strong>24/7 Customer Support</strong><span>We're Here to Help</span></div>
+    </div>
+    <div class="feat">
+      <svg viewBox="0 0 64 48" fill="none" stroke="#8e3a4e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M32 14v-3a5 5 0 1 0-5-5"/><path d="M32 14 4 38c-2 2-1 5 2 5h52c3 0 4-3 2-5z"/></svg>
+      <div><strong>Easy Returns</strong><span>Hassle-Free Returns</span></div>
+    </div>
+  </section>
+</main>
+
+
+
+<!-- ============ CONTACT PAGE ============ -->
+<section class="contact" id="contact" data-page="contact" hidden>
+  <div class="ct-in">
+    <div class="ct-left">
+      <div class="ct-ring"></div>
+      <div class="ct-arch"><img src="images/custom-order.jpg" alt="Wine Patchwork Lehenga by Veylora"><div class="ct-quote">Every look begins with a conversation.</div></div>
+      <div class="ct-live"><i></i>Open 24&times;7 &middot; Always here</div>
+    </div>
+    <div class="ct-right">
+      <p class="welcome"><span class="line"></span><span class="wtxt">CONTACT US</span></p>
+      <h2>Let&rsquo;s find the look <em>made for you.</em></h2>
+      <p class="ct-lines">Whether it&rsquo;s a wedding morning or a midnight sangeet, we&rsquo;re only a call away. Ask about sizing, styling or your order &mdash; any hour, any day, we&rsquo;ll answer with a smile and a little sparkle.</p>
+      <div class="ct-lead">
+        <div class="ct-av">A</div>
+        <div class="ct-who"><small>Your lead stylist &amp; contact</small><h3>Aisha Merha</h3><a class="num" href="tel:+918427314999">+91 84273 14999</a><button type="button" class="ct-cp" data-copy aria-label="Copy number" title="Copy number"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></div>
+        <div class="ct-btns">
+          <a class="ct-btn fill" href="tel:+918427314999"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>Call Aisha</a>
+          <a class="ct-btn line" href="https://wa.me/918427314999?text=Hi%20Aisha%2C%20I%27d%20like%20help%20with%20Veylora." target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.7 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>WhatsApp</a>
+        </div>
+      </div>
+      <div class="ct-tiles">
+        <div class="ct-tile"><b>24&times;7</b><span>Always available</span></div>
+        <div class="ct-tile"><b>Free</b><span>Shipping above &#8377;999</span></div>
+        <div class="ct-tile"><b>Easy</b><span>Hassle-free returns</span></div>
+      </div>
+    </div>
+  </div>
+  <form class="ct-form" id="ctForm">
+    <h3>Prefer to write? <em>Tell Aisha.</em></h3>
+    <p class="s">Share a few words and your message opens in WhatsApp, straight to Aisha.</p>
+    <div class="ct-fgrid">
+      <input id="ctName" type="text" placeholder="Your name" required autocomplete="name">
+      <input id="ctOcc" type="text" placeholder="Occasion (wedding, sangeet, party&hellip;)">
+      <textarea id="ctMsg" placeholder="How can we help you today?" required></textarea>
+    </div>
+    <a class="ct-btn fill" id="ctSend" href="https://wa.me/918427314999" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.7 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Send to Aisha</a>
+  </form>
+  <div class="ct-call" id="ctCall" role="status">
+    <div><small>Aisha Merha</small><b>+91 84273 14999</b></div>
+    <button type="button" id="ctCopy">Copy number</button>
+    <button type="button" class="x" id="ctCallX" aria-label="Close">&times;</button>
+  </div>
+  <div class="marquee" id="contactMarquee" aria-hidden="true"></div>
+</section>
+
+<!-- ============ ABOUT US PAGE ============ -->
+<section class="about" id="about" data-page="about" hidden>
+  <div class="about-in">
+    <div class="a-left">
+      <div class="a-outline"></div>
+      <div class="a-frame"><img src="images/about.jpg" alt="Model in an ivory embroidered lehenga on sandstone steps"></div>
+      <div class="a-badge" aria-hidden="true">
+        <svg viewBox="0 0 120 120"><defs><path id="circ" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"/></defs>
+          <text><textPath href="#circ" textLength="272" lengthAdjust="spacing">FASHION BEYOND BORDERS ✦ VEYLORA ✦ </textPath></text></svg>
+        <svg class="b-lotus" viewBox="0 0 60 40" fill="none" stroke="#fbeee9" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M30 4c-5 6-6 13 0 20 6-7 5-14 0-20z"/><path d="M30 24c-9-1-15-6-17-13 8 0 14 4 17 13z"/><path d="M30 24c9-1 15-6 17-13-8 0-14 4-17 13z"/><path d="M30 26c-8 3-14 1-21-4 7-3 14-2 21 4z"/><path d="M30 26c8 3 14 1 21-4-7-3-14-2-21 4z"/></svg>
+      </div>
+      <div class="a-quote"><b>“</b>Wear your heritage,<br>write your story.</div>
+    </div>
+
+    <div class="a-right">
+      <p class="welcome"><span class="line"></span><span class="wtxt">ABOUT VEYLORA</span></p>
+      <h2>
+        <span class="ln"><span>Where heritage meets</span></span>
+        <span class="ln l2"><span><em>the modern woman.</em></span></span>
+      </h2>
+      <p class="a-p p1">Veylora began with a simple belief: a woman should never have to choose between the traditions she loves and the life she lives. Our Indo-Western designs bring together hand-finished embroidery, flowing silhouettes and soft, breathable fabrics.</p>
+      <p class="a-p p2">Every piece is made to move from a family celebration to an evening out, and to be worn, remembered and passed on. Crafted with care, priced with honesty, and backed by easy returns.</p>
+
+      <div class="launch"><i class="dot"></i><span>Launching</span><b>7 November 2026</b></div>
+
+      <div class="pillars">
+        <div class="pillar"><span class="pi"><svg viewBox="0 0 24 24" fill="none" stroke="#8e3a4e" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3l2.2 6.3L21 12l-6.8 2.7L12 21l-2.2-6.3L3 12l6.8-2.7z"/></svg></span><div><strong>Crafted with care</strong><small>Detailed finishing on every piece</small></div></div>
+        <div class="pillar"><span class="pi"><svg viewBox="0 0 24 24" fill="none" stroke="#8e3a4e" stroke-width="1.7" stroke-linejoin="round"><path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z"/></svg></span><div><strong>Comfort first</strong><small>Fabrics that feel as good as they look</small></div></div>
+        <div class="pillar"><span class="pi"><svg viewBox="0 0 24 24" fill="none" stroke="#8e3a4e" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round"><path d="M4 6h16v14H4zM4 10h16M8 3v5M16 3v5"/></svg></span><div><strong>Every occasion</strong><small>Festive mornings to wedding nights</small></div></div>
+      </div>
+
+      <div class="cta-row a-cta">
+        <a href="#" class="btn-primary" id="joinLaunch">Join the Launch
+          <svg class="arrow" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><polyline points="13 5 20 12 13 19"/></svg>
+        </a>
+        <a href="#home" class="btn-explore" data-view="home">
+          <span class="play back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8e3a4e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="12" x2="4" y2="12"/><polyline points="11 5 4 12 11 19"/></svg></span>
+          Back to Home
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="marquee" aria-hidden="true"><div class="track"><span>Fashion Beyond Borders ✦ Wear your heritage, write your story ✦ Launching 7 November 2026 ✦ Crafted for the modern woman ✦ </span><span>Fashion Beyond Borders ✦ Wear your heritage, write your story ✦ Launching 7 November 2026 ✦ Crafted for the modern woman ✦ </span></div></div>
+</section>
+
+<!-- page transition curtain -->
+<div class="curtain" id="curtain" aria-hidden="true">
+  <div class="cp c1"></div><div class="cp c2"></div>
+  <div class="cl">
+    <svg viewBox="0 0 60 40" fill="none" stroke="#8e3a4e" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" d="M30 4c-5 6-6 13 0 20 6-7 5-14 0-20z"/><path pathLength="1" d="M30 24c-9-1-15-6-17-13 8 0 14 4 17 13z"/><path pathLength="1" d="M30 24c9-1 15-6 17-13-8 0-14 4-17 13z"/><path pathLength="1" d="M30 26c-8 3-14 1-21-4 7-3 14-2 21 4z"/><path pathLength="1" d="M30 26c8 3 14 1 21-4-7-3-14-2-21 4z"/></svg>
+    <span>Veylora</span><small>FASHION BEYOND BORDERS</small>
+  </div>
+</div>
+
+<!-- ============ COLLECTIONS PAGE ============ -->
+<section class="coll" id="collections" data-page="collections" hidden>
+  <div class="coll-head">
+    <p class="welcome"><span class="line"></span><span class="wtxt">THE LAUNCH COLLECTION</span><span class="line"></span></p>
+    <h2><span class="ln"><span>Dressed for every <em>celebration.</em></span></span></h2>
+    <p class="coll-sub">Eleven handpicked looks for the modern woman. Tap a look to see it up close.</p>
+  </div>
+  <div class="coll-bar">
+    <div class="chips" id="chips">
+      <button class="chip on" data-cat="All">All</button>
+      <button class="chip" data-cat="Lehenga">Lehenga</button>
+      <button class="chip" data-cat="Indo-Western">Indo-Western</button>
+      <button class="chip" data-cat="Sharara &amp; Palazzo">Sharara &amp; Palazzo</button>
+      <button class="chip" data-cat="Kurta &amp; Anarkali">Kurta &amp; Anarkali</button>
+    </div>
+    <label class="sort"><span id="countTxt"></span>
+      <select id="sortSel" aria-label="Sort products">
+        <option value="featured">Featured</option>
+        <option value="az">Name: A to Z</option>
+        <option value="za">Name: Z to A</option>
+      </select>
+    </label>
+  </div>
+  <div class="pgrid" id="pgrid"></div>
+  <div class="marquee" id="collMarquee" aria-hidden="true"></div>
+</section>
+
+<!-- ============ SHOP PAGE ============ -->
+<section class="shop" id="shop" data-page="shop" hidden>
+  <div class="shop-banner">
+    <span class="orb o1"></span><span class="orb o2"></span>
+    <div class="sb-text">
+      <p class="crumbs"><a href="#home" data-view="home">Home</a><i>/</i><span>Shop</span></p>
+      <h2><span class="ln"><span>Shop the</span></span><span class="ln l2"><span><em>Launch Edit</em></span></span></h2>
+      <p class="sb-sub">Every look from our first collection in one place. Filter by price, colour and occasion, and find yours.</p>
+    </div>
+    <div class="sb-art" aria-hidden="true">
+      <div class="arch a1"><img src="images/lookbook-1.jpg" alt=""></div>
+      <div class="arch a2"><img src="images/lookbook-2.jpg" alt=""></div>
+      <div class="arch a3"><img src="images/lookbook-3.jpg" alt=""></div>
+    </div>
+  </div>
+
+  <div class="shop-wrap">
+    <aside class="filters" id="filters" aria-label="Filters">
+      <div class="f-top"><h3>Filters</h3><button type="button" id="fClose" aria-label="Close filters">×</button></div>
+      <div class="fb"><label class="search"><svg viewBox="0 0 24 24" fill="none" stroke="#8e3a4e" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg><input id="sSearch" type="text" placeholder="Search outfits…" autocomplete="off"></label></div>
+      <div class="fb"><h4>Category</h4><div id="fCats"></div></div>
+      <div class="fb"><h4>Price</h4>
+        <div class="range"><div class="rl"><span>From</span><b id="pMinL"></b></div><input type="range" id="pMin" min="2000" max="10000" step="100" value="2000"></div>
+        <div class="range"><div class="rl"><span>To</span><b id="pMaxL"></b></div><input type="range" id="pMax" min="2000" max="10000" step="100" value="10000"></div>
+      </div>
+      <div class="fb"><h4>Colour</h4><div class="swatches" id="fCols"></div></div>
+      <div class="fb"><h4>Occasion</h4><div class="otags" id="fOcc"></div></div>
+      <div class="fb"><label class="check"><input type="checkbox" id="fDisc"><i></i><span>25% off or more</span></label></div>
+      <button type="button" class="fclear" id="fClear">Clear all filters</button>
+    </aside>
+
+    <div class="shop-main">
+      <div class="stoolbar">
+        <button type="button" class="fopen" id="fOpen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="17" x2="9" y2="17"/></svg>Filters</button>
+        <p class="scount"><span id="sCount"></span><button type="button" id="sClearInline" class="linkbtn" hidden>Clear filters</button></p>
+        <div class="tb-r">
+          <select id="sSort" aria-label="Sort products">
+            <option value="featured">Featured</option><option value="low">Price: Low to High</option><option value="high">Price: High to Low</option><option value="disc">Biggest Discount</option>
+          </select>
+          <div class="vt" id="vt">
+            <button type="button" data-v="grid" class="on" aria-label="Grid view"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></button>
+            <button type="button" data-v="list" aria-label="List view"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="4" width="16" height="7" rx="1.5"/><rect x="4" y="13" width="16" height="7" rx="1.5"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="sgrid" id="sgrid"></div>
+    </div>
+  </div>
+  <div class="marquee" id="shopMarquee" aria-hidden="true"></div>
+</section>
+<div class="sscrim" id="sscrim"></div>
+
+<!-- ============ PRODUCT DETAILS ============ -->
+<div class="pm" id="pm" aria-hidden="true">
+  <div class="pm-card" role="dialog" aria-modal="true" aria-label="Product details">
+    <button class="pm-x" id="pmClose" aria-label="Close">×</button>
+    <button class="pm-nav prev" id="pmPrev" aria-label="Previous product">‹</button>
+    <button class="pm-nav next" id="pmNext" aria-label="Next product">›</button>
+    <div class="pm-img" id="pmImg"><img alt=""><span class="off" id="pmOff"></span><span class="zhint">Click image to zoom</span></div>
+    <div class="pm-info" id="pmInfo"></div>
+  </div>
+</div>
+
+<!-- ============ CART DRAWER ============ -->
+<div class="cscrim" id="cscrim"></div>
+<aside class="cdrawer" id="cdrawer" aria-label="Shopping cart">
+  <div class="cd-head"><h3>Your Cart</h3><button class="cd-x" id="cdClose" aria-label="Close cart">×</button></div>
+  <div class="cd-body" id="cdBody"></div>
+  <div class="cd-foot" id="cdFoot">
+    <div class="cd-row"><span>Subtotal</span><b id="cdSub">₹0</b></div>
+    <div class="cd-row save"><span>You save</span><b id="cdSave">₹0</b></div>
+    <div class="cd-row"><span>Shipping</span><b>Free</b></div>
+    <div class="cd-row total"><span>Total</span><b id="cdTotal">₹0</b></div>
+    <button class="btn-primary full" id="checkoutBtn" type="button">Checkout</button>
+  </div>
+</aside>
+
+<!-- ============ LOGIN / SIGN UP ============ -->
+<div class="auth" id="auth" aria-hidden="true">
+  <div class="auth-card" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <button class="auth-x" id="authClose" aria-label="Close">×</button>
+    <div class="auth-art"><img src="images/login-art.jpg" alt=""><div class="auth-art-txt"><span>Veylora</span><small>FASHION BEYOND BORDERS</small></div></div>
+    <div class="auth-main">
+      <div class="auth-tabs" id="authTabs">
+        <button type="button" data-mode="login" class="on">Log In</button>
+        <button type="button" data-mode="signup">Sign Up</button>
+        <i class="ink"></i>
+      </div>
+      <h3 id="authTitle">Welcome back</h3>
+      <p class="auth-warn" id="authWarn" hidden>Authentication is unavailable. Start the PHP server and configure the Supabase URL and publishable or anon key in the project .env file.</p>
+      <p class="auth-sub" id="authSub">Log in with your email and password.</p>
+
+      <form id="loginForm" class="aform" novalidate>
+        <label>Email address<input type="email" id="lEmail" autocomplete="email" placeholder="you@example.com" required></label>
+        <label>Password
+          <span class="pw"><input type="password" id="lPass" autocomplete="current-password" placeholder="Enter your password" required><button type="button" class="eye" data-eye="lPass" aria-label="Show password"></button></span>
+        </label>
+        <p class="err" id="lErr" role="alert"></p>
+        <button class="btn-primary full" type="submit">Log In</button>
+        <p class="swap">New to Veylora? <a href="#" data-mode="signup">Create an account</a></p>
+        <p class="adm-link"><a href="#" id="goAdmin">Store admin</a></p>
+      </form>
+
+      <form id="signupForm" class="aform" novalidate hidden>
+        <label>Full name<input type="text" id="sName" autocomplete="name" placeholder="Your full name" required></label>
+        <label>Email address<input type="email" id="sEmail" autocomplete="email" placeholder="you@example.com" required></label>
+        <label>Password
+          <span class="pw"><input type="password" id="sPass" autocomplete="new-password" placeholder="At least 8 characters" required><button type="button" class="eye" data-eye="sPass" aria-label="Show password"></button></span>
+          <span class="meter" id="meter"><i></i><i></i><i></i><i></i></span><small class="hint" id="hint">Use 8+ characters with letters and numbers.</small>
+        </label>
+        <label>Confirm password
+          <span class="pw"><input type="password" id="sPass2" autocomplete="new-password" placeholder="Re-enter your password" required><button type="button" class="eye" data-eye="sPass2" aria-label="Show password"></button></span>
+        </label>
+        <p class="err" id="sErr" role="alert"></p>
+        <div class="sticky-act"><button class="btn-primary full" id="signupBtn" type="submit">Create Account</button></div>
+        <p class="swap">Already registered? <a href="#" data-mode="login">Log in</a></p>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="auth addr" id="addr" aria-hidden="true">
+  <div class="addr-card" role="dialog" aria-modal="true" aria-labelledby="addrTitle">
+    <button class="auth-x" id="addrClose" type="button" aria-label="Close">&times;</button>
+    <div id="addrMain">
+      <h3 id="addrTitle">Delivery address</h3>
+      <p class="auth-sub" id="addrSub">Where should we deliver your order?</p>
+      <div class="a-sum" id="addrSum" hidden></div>
+      <div class="a-list" id="addrList"></div>
+      <form class="aform" id="addrForm" novalidate>
+        <div class="a-grid">
+          <label>Full name<input id="aName" type="text" autocomplete="name" placeholder="Receiver's full name"></label>
+          <label>Mobile number<input id="aPhone" type="tel" inputmode="numeric" maxlength="10" autocomplete="tel-national" placeholder="10-digit mobile number"></label>
+          <label class="full">House no. &amp; street / area<textarea id="aLine" autocomplete="street-address" placeholder="Flat / house no., building, street, area"></textarea></label>
+          <label>City<input id="aCity" type="text" autocomplete="address-level2" placeholder="City"></label>
+          <label>State<input id="aState" type="text" autocomplete="address-level1" placeholder="State"></label>
+          <label>Pincode<input id="aPin" type="tel" inputmode="numeric" maxlength="6" autocomplete="postal-code" placeholder="6-digit pincode"></label>
+          <label>Landmark (optional)<input id="aLand" type="text" placeholder="Near&hellip;"></label>
+        </div>
+        <p class="err" id="aErr" role="alert"></p>
+        <div class="a-act">
+          <button class="ghost" id="aCancel" type="button" hidden>Cancel</button>
+          <button class="btn-primary" id="aSave" type="button">Save &amp; Continue</button>
+        </div>
+      </form>
+      <button class="a-new" id="aNewBtn" type="button" hidden>+ Add a new address</button>
+      <div class="a-act" id="aPlaceRow" hidden><button class="btn-primary" id="aPlace" type="button">Continue to payment</button></div>
+    </div>
+    <div id="addrPay" hidden>
+      <h3>Payment method</h3>
+      <p class="auth-sub">Choose how you would like to pay for your order.</p>
+      <div class="a-sum" id="paySum"></div>
+      <div class="a-list" id="payOpts">
+        <div class="a-opt on" data-pm="COD"><i></i><div><b>Cash on Delivery</b>Pay in cash when your order arrives.</div></div>
+        <div class="a-opt" data-pm="UPI"><i></i><div><b>UPI</b>Scan the QR code and pay with GPay, PhonePe, Paytm or any UPI app.</div></div>
+      </div>
+      <div class="pay-upi" id="payUpi" hidden>
+        <div class="pay-qr"><img src="images/upi-qr.png" alt="UPI QR code to pay Ankita Mehra" width="592" height="592"></div>
+        <div class="pay-info aform">
+          <p class="pay-amt">Pay exactly<b id="payAmt"></b></p>
+          <p>to <strong id="payName"></strong></p>
+          <div class="pay-id"><code id="payId"></code><button type="button" id="payCopy">Copy UPI ID</button></div>
+          <a class="pay-app" id="payApp" href="#" hidden>Open my UPI app</a>
+          <label>UPI reference number (UTR)<input id="payUtr" type="tel" inputmode="numeric" maxlength="14" autocomplete="off" placeholder="12-digit number from your payment app"></label>
+          <p class="hint">After paying, enter the 12-digit reference number shown in your payment app. We use it to confirm your payment.</p>
+        </div>
+      </div>
+      <p class="err" id="payErr" role="alert"></p>
+      <div class="a-act"><button class="ghost" id="payBack" type="button">Back</button><button class="btn-primary" id="payGo" type="button">Place Order</button></div>
+    </div>
+    <div class="a-ok" id="addrOk" hidden></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- ============ ADMIN PORTAL ============ -->
+<div class="auth addr" id="admLogin" aria-hidden="true">
+  <div class="addr-card" role="dialog" aria-modal="true" aria-labelledby="admLTitle">
+    <button class="auth-x" id="admLClose" type="button" aria-label="Close">&times;</button>
+    <h3 id="admLTitle">Store admin</h3>
+    <p class="auth-sub">Sign in with the admin mobile number and password.</p>
+    <form class="aform" id="admLForm" novalidate>
+      <label>Mobile number<input id="admPhone" type="tel" inputmode="numeric" autocomplete="username" placeholder="10-digit mobile number"></label>
+      <label>Password
+        <span class="pw"><input type="password" id="admPass" autocomplete="current-password" placeholder="Enter admin password"><button type="button" class="eye" data-eye="admPass" aria-label="Show password"></button></span>
+      </label>
+      <p class="err" id="admErr" role="alert"></p>
+      <button class="btn-primary full" type="submit">Log in</button>
+    </form>
+  </div>
+</div>
+<button class="adm-fab" id="admFab" type="button" hidden>Admin panel</button>
+<div class="adm" id="adm" hidden aria-hidden="true">
+  <header class="adm-top">
+    <div class="adm-brand"><b>Veylora</b><span>Admin</span></div>
+    <nav class="adm-tabs" id="admTabs">
+      <button type="button" data-t="dash" class="on">Dashboard</button>
+      <button type="button" data-t="orders">Orders<i id="admNew"></i></button>
+      <button type="button" data-t="prods">Products</button>
+    </nav>
+    <div class="adm-user"><span>Aisha Mehra</span><button type="button" id="admRefresh">Refresh</button><button type="button" id="admView">View site</button><button type="button" id="admOut">Log out</button></div>
+  </header>
+  <main class="adm-main" id="admMain"></main>
+</div>
+
+<script src="js/main.js"></script>
+<div class="gs" id="gs" aria-hidden="true">
+  <div class="gs-card" role="dialog" aria-label="Search Veylora">
+    <button class="gs-x" id="gsX" type="button" aria-label="Close">&times;</button>
+    <form class="gs-top" id="gsForm" autocomplete="off"><svg viewBox="0 0 24 24" fill="none" stroke="#8e3a4e" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg><input id="gsInput" type="text" enterkeyhint="search" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="Search lehenga, sharara, anarkali&hellip;" aria-label="Search outfits"><button type="button" id="gsGo">Search</button></form>
+    <div class="gs-note" id="gsNote"></div>
+    <p class="gs-h">Popular searches</p>
+    <div class="gs-chips" id="gsChips"><button type="button" data-q="Lehenga">Lehenga</button><button type="button" data-q="Sharara">Sharara</button><button type="button" data-q="Anarkali">Anarkali</button><button type="button" data-q="Kurta">Kurta</button><button type="button" data-q="Palazzo">Palazzo</button><button type="button" data-q="Indo-Western">Indo-Western</button><button type="button" data-q="Wedding">Wedding</button></div>
+  </div>
+</div>
+<script src="js/search.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
