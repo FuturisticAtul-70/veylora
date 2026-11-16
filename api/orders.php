@@ -109,7 +109,7 @@ try {
     }
     $ownedAddresses = supabaseRequest(
         'GET',
-        '/addresses?id=eq.' . rawurlencode($addressId) . '&select=id&limit=1',
+        '/addresses?id=eq.' . rawurlencode($addressId) . '&select=id,full_name,mobile_number,address_line,city,state,pincode,landmark&limit=1',
         null,
         $accessToken,
         'rest'
@@ -150,6 +150,18 @@ try {
             'payment_method' => $paymentMethod,
             'payment_status' => $paymentStatus,
             'utr' => $utr,
+            'invoice_number' => 'INV-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(4))),
+            'invoice_issued_at' => gmdate('c'),
+            'billing_name' => $ownedAddresses[0]['full_name'],
+            'billing_email' => $user['email'],
+            'billing_phone' => $ownedAddresses[0]['mobile_number'],
+            'billing_address' => [
+                'line' => $ownedAddresses[0]['address_line'],
+                'city' => $ownedAddresses[0]['city'],
+                'state' => $ownedAddresses[0]['state'],
+                'pincode' => $ownedAddresses[0]['pincode'],
+                'landmark' => $ownedAddresses[0]['landmark'] ?? '',
+            ],
             'status' => 'Placed',
         ],
         $accessToken,
@@ -165,8 +177,40 @@ try {
         clearAuthSession();
         respond(401, ['error' => 'Your session expired. Please log in again.']);
     }
+    if ($error->providerCode === 'PGRST204' && str_contains($error->getMessage(), 'invoice_')) {
+        error_log('Veylora Supabase invoice columns are missing or unavailable: ' . $error->getMessage());
+        respond(503, ['error' => 'Invoice storage is not available in Supabase yet. Run database/orders.sql for an existing project or database/schema.sql for a new project, then retry.']);
+    }
+    if ($error->providerCode === '23514') {
+        error_log('Veylora Supabase rejected order constraints: ' . $error->getMessage());
+        $constraint = '';
+        if (preg_match('/constraint "([^"]+)"/i', $error->getMessage(), $matches)) {
+            $constraint = $matches[1];
+        }
+        if ($constraint === 'orders_utr_check') {
+            respond(400, [
+                'code' => 'invalid_payment_reference',
+                'error' => 'The database rejected the payment details. For UPI, enter the 12-digit UTR from the payment app; for Cash on Delivery, do not enter a UTR.',
+            ]);
+        }
+        respond(400, [
+            'code' => 'order_constraint_violation',
+            'error' => 'Supabase rejected the order because the project database constraints do not match this checkout. Run the latest database/orders.sql migration in the Supabase SQL Editor, then try placing the order again.',
+        ]);
+    }
+    if (in_array($error->providerCode, ['23502', '42703', 'PGRST204'], true)) {
+        error_log('Veylora Supabase order columns are missing or incompatible: ' . $error->getMessage());
+        respond(503, [
+            'code' => 'order_schema_mismatch',
+            'error' => 'Order or invoice columns are missing in Supabase. Run the latest database/orders.sql migration for an existing project, or database/schema.sql for a new project, then reload the Supabase API schema cache.',
+        ]);
+    }
     if ($error->status === 400 || $error->status === 422) {
-        respond(400, ['error' => 'The order data was rejected. Check your cart and payment details, then try again.']);
+        error_log('Veylora Supabase rejected order data (HTTP ' . $error->status . ', code ' . ($error->providerCode ?: 'unavailable') . '): ' . $error->getMessage());
+        respond(400, [
+            'code' => 'order_data_rejected',
+            'error' => 'Supabase rejected the order data. Refresh the page and verify your cart, address, and payment details. If this keeps happening, run the latest database/orders.sql migration.',
+        ]);
     }
     if ($error->status === 403) {
         respond(403, ['error' => 'You are not allowed to access this order.']);

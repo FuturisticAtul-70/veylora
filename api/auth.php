@@ -75,24 +75,29 @@ if ($action === 'logout') {
     respond(200, $response);
 }
 
-if ($action !== 'signup' && $action !== 'login') {
+if (!in_array($action, ['signup', 'login', 'resend_confirmation'], true)) {
     respond(400, ['error' => 'Unknown authentication action.']);
 }
 
 $email = $payload['email'] ?? null;
 $password = $payload['password'] ?? null;
-if (!is_string($email) || !is_string($password)) {
-    respond(400, ['error' => 'Email and password are required.']);
+if (!is_string($email)) {
+    respond(400, ['error' => 'A valid email address is required.']);
 }
 $email = strtolower(trim($email));
 if (strlen($email) > 254 || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
     respond(400, ['error' => 'Enter a valid email address.']);
 }
-if ($password === '') {
-    respond(400, ['error' => 'Enter a password.']);
-}
-if (strlen($password) > 72) {
-    respond(400, ['error' => 'Password must not exceed 72 bytes.']);
+if ($action !== 'resend_confirmation') {
+    if (!is_string($password)) {
+        respond(400, ['error' => 'Email and password are required.']);
+    }
+    if ($password === '') {
+        respond(400, ['error' => 'Enter a password.']);
+    }
+    if (strlen($password) > 72) {
+        respond(400, ['error' => 'Password must not exceed 72 bytes.']);
+    }
 }
 
 if ($action === 'signup') {
@@ -114,6 +119,17 @@ if ($action === 'signup') {
 }
 
 try {
+    if ($action === 'resend_confirmation') {
+        supabaseRequest('POST', '/resend', [
+            'type' => 'signup',
+            'email' => $email,
+        ]);
+        respond(200, [
+            'message' => 'If an unconfirmed account exists for this email, Supabase has sent a new confirmation link. Check your inbox and spam folder.',
+            'csrf' => csrfToken(),
+        ]);
+    }
+
     if ($action === 'signup') {
         $authData = supabaseRequest('POST', '/signup', [
             'email' => $email,
@@ -143,7 +159,8 @@ try {
     if (
         $action === 'signup'
         && ($error->status === 400 || $error->status === 422)
-        && (stripos($error->getMessage(), 'already registered') !== false
+        && (in_array($error->providerCode, ['user_already_exists', 'email_exists'], true)
+            || stripos($error->getMessage(), 'already registered') !== false
             || stripos($error->getMessage(), 'already been registered') !== false)
     ) {
         respond(409, [
@@ -151,10 +168,63 @@ try {
             'error' => 'This email is already registered. Log in instead.',
         ]);
     }
+    if ($action === 'login' && $error->providerCode === 'email_not_confirmed') {
+        respond(403, [
+            'code' => 'email_not_confirmed',
+            'error' => 'Confirm your email using the link Supabase sent you, then log in. If the email did not arrive, check spam or ask the site administrator to review Supabase email settings.',
+        ]);
+    }
     if ($action === 'login' && in_array($error->status, [400, 401, 422], true)) {
         respond(401, [
             'code' => 'invalid_credentials',
             'error' => 'Email or password is incorrect.',
+        ]);
+    }
+    if ($error->status === 429) {
+        $providerMessage = strtolower($error->getMessage());
+        $emailRateLimited = str_contains(strtolower($error->providerCode), 'email')
+            && str_contains(strtolower($error->providerCode), 'rate')
+            || str_contains($providerMessage, 'email rate limit')
+            || str_contains($providerMessage, 'email rate exceeded');
+        error_log(
+            'Veylora Supabase authentication rate limit (HTTP 429, provider code '
+            . ($error->providerCode !== '' ? $error->providerCode : 'unavailable')
+            . ').'
+        );
+        $actionLabel = match ($action) {
+            'signup' => 'account creation',
+            'resend_confirmation' => 'confirmation email requests',
+            default => 'login attempts',
+        };
+        $message = $emailRateLimited
+            ? 'Supabase blocked the confirmation email for this signup because its email sending limit was reached.'
+            : 'Supabase temporarily rate-limited ' . $actionLabel . '.';
+        if ($error->retryAfterSeconds !== null && $error->retryAfterSeconds > 0) {
+            $minutes = max(1, (int)ceil($error->retryAfterSeconds / 60));
+            $message .= ' Wait about ' . $minutes . ' minute' . ($minutes === 1 ? '' : 's') . ' before trying again.';
+        } else {
+            $message .= ' Wait for the Supabase limit to reset before trying again.';
+        }
+        $message .= $emailRateLimited
+            ? ' To prevent this recurring, configure custom SMTP in the Supabase Dashboard under Project Settings → Authentication → SMTP Settings; the built-in email service has strict sending limits.'
+            : ' Repeated attempts can extend the block. If it continues, the project owner should review Authentication → Rate Limits in the Supabase Dashboard.';
+        respond(429, [
+            'code' => $emailRateLimited ? 'email_rate_limited' : 'rate_limited',
+            'error' => $message,
+            'retry_after' => $error->retryAfterSeconds,
+        ]);
+    }
+    if (
+        $action === 'signup'
+        && (
+            $error->providerCode === 'unexpected_failure'
+            || stripos($error->getMessage(), 'database error saving new user') !== false
+        )
+    ) {
+        error_log('Veylora Supabase signup database error: ' . $error->getMessage());
+        respond(503, [
+            'code' => 'signup_database_error',
+            'error' => 'Supabase could not save the new account. In your Supabase SQL Editor, run database/schema.sql for a new project or check that the customer profile table and signup trigger were created successfully.',
         ]);
     }
     error_log('Veylora Supabase authentication error (HTTP ' . $error->status . '): ' . $error->getMessage());

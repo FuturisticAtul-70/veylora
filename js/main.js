@@ -30,7 +30,7 @@
 /* ================= LOGIN / SIGN UP (password based) ================= */
 (function(){
   var $=function(s){return document.querySelector(s)};
-  /* Orders remain local; customer credentials, sessions, and saved addresses use the PHP/Supabase backend. */
+  /* Customer credentials, addresses, orders, and invoices use the PHP/Supabase backend. */
   var mem={},lsOk=true,ckOk=false;
   try{localStorage.setItem('vey_t','1');localStorage.removeItem('vey_t')}catch(e){lsOk=false}
   try{document.cookie='vey_t=1;path=/;max-age=60';ckOk=/vey_t=1/.test(document.cookie)}catch(e){}
@@ -185,6 +185,11 @@
     if(fields&&fields[0])try{fields[0].focus({preventScroll:true})}catch(_){}
 
   }
+  function authErrorMessage(error){
+    if(error.code==='email_rate_limited')return error.message||'Supabase reached its built-in email sending limit. Wait for it to reset, then configure custom SMTP in Supabase to prevent this recurring.';
+    if(error.code==='rate_limited')return error.message||'Supabase temporarily rate-limited account requests. Wait before trying again.';
+    return error.message||'The account service is unavailable. Please try again later.';
+  }
   [].forEach.call(document.querySelectorAll('.aform input'),function(i){i.addEventListener('input',function(){i.classList.remove('bad')})});
   var emailOk=function(v){return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)};
 
@@ -210,7 +215,8 @@
       if(data.user&&afterAuth){var f=afterAuth;afterAuth=null;setTimeout(f,450)}
     }).catch(function(error){
       if(error.code==='email_taken')fail('#sErr','This email is already registered. <a href="#" id="goLogin">Log in instead</a>',[em]);
-      else fail('#sErr',error.message||'Could not create your account. Please try again.');
+      else if(error.code==='signup_database_error')fail('#sErr',error.message||'Supabase could not save the new account. Check the Supabase database setup.');
+      else fail('#sErr',authErrorMessage(error));
     }).then(function(){suBusy=false;$('#signupBtn').disabled=false});
   }
   document.addEventListener('click',function(e){if(e.target.id==='goLogin'){e.preventDefault();var v=$('#sEmail').value;setMode('login');$('#lEmail').value=v;$('#lPass').focus()}if(e.target.id==='goSignup'){e.preventDefault();var v2=$('#lEmail').value;setMode('signup');$('#sEmail').value=v2;$('#sName').focus()}});
@@ -227,8 +233,21 @@
       if(afterAuth){var f=afterAuth;afterAuth=null;setTimeout(f,450)}
     }).catch(function(error){
       if(error.code==='invalid_credentials')fail('#lErr','Email or password is incorrect. <a href="#" id="goSignup">Sign up</a>',[p]);
-      else fail('#lErr',error.message||'Could not log in. Please try again.');
+      else if(error.code==='email_not_confirmed')fail('#lErr',(error.message||'Confirm your email before logging in.')+' <a href="#" id="resendConfirmation">Resend confirmation email</a>',[em]);
+      else fail('#lErr',authErrorMessage(error));
     }).then(function(){submit.disabled=false});
+  });
+  document.addEventListener('click',function(e){
+    if(e.target.id!=='resendConfirmation')return;
+    e.preventDefault();
+    var link=e.target,email=$('#lEmail').value.trim().toLowerCase();
+    if(!emailOk(email)){fail('#lErr','Enter your email address above, then request a new confirmation link.');return}
+    link.textContent='Sending confirmation email…';link.setAttribute('aria-disabled','true');link.removeAttribute('id');
+    authRequest({action:'resend_confirmation',email:email}).then(function(data){
+      $('#lErr').textContent=data.message||'If an unconfirmed account exists for this email, a confirmation link has been sent.';
+    }).catch(function(error){
+      $('#lErr').textContent=authErrorMessage(error);
+    });
   });
 
   /* ---------- session / header ---------- */
@@ -266,7 +285,7 @@
       var profile=persisted[email];
       if(!profile)return;
       delete profile.addresses;
-      (profile.orders||[]).forEach(function(order){if(order)delete order.address});
+      (profile.orders||[]).forEach(function(order){if(order){delete order.address;delete order.invoice}});
     });
     store.set('vey_profiles',persisted);
   }
@@ -314,6 +333,14 @@
       total:Number(row.total_price),
       addressId:row.address_id,
       pay:{method:method,status:row.payment_status,utr:row.utr||'',amount:Number(row.total_price)},
+      invoice:{
+        number:row.invoice_number,
+        issuedAt:row.invoice_issued_at||row.created_at,
+        name:row.billing_name,
+        email:row.billing_email,
+        phone:row.billing_phone||'',
+        address:row.billing_address||null
+      },
       status:row.status,
       history:[{s:row.status,t:Date.parse(row.created_at)}]
     };
@@ -448,14 +475,18 @@
       u.orders=u.orders||[];u.orders.unshift(order);saveUsers();
       var done=adCtx.done;adCtx=null;
       var lines=order.items.map(function(i){return '\u2022 '+i.name+' (Size '+i.size+') x'+i.qty+' - '+money(i.price*i.qty)}).join('\n');
-      var payLine=upi?'UPI - paid '+money(order.total)+' (UTR '+utr+')':'Cash on Delivery - '+money(order.total)+' to pay on delivery';
+      var payLine=upi?'UPI - reference submitted, awaiting verification (UTR '+utr+')':'Cash on Delivery - '+money(order.total)+' to pay on delivery';
       var msg='Hi Veylora, I have placed an order.\n\n*Order ID:* '+oid+'\n'+lines+'\n*Total:* '+money(order.total)+'\n*Payment:* '+payLine+'\n\n*Deliver to:* '+a.name+', '+a.phone+'\n'+addrText(a);
       $('#addrMain').hidden=true;$('#addrPay').hidden=true;var ok=$('#addrOk');ok.hidden=false;
       var payNote=upi?'<p>We have received your UPI reference number <b>'+esc(utr)+'</b> and will confirm your payment shortly.</p>':'<p>Please keep <b>'+money(order.total)+'</b> ready in cash when your order is delivered.</p>';
+      var invoiceAction=order.invoice.number
+        ?'<p>Invoice <b>'+esc(order.invoice.number)+'</b> is ready. Payment status: <b>'+esc(order.pay.status)+'</b>.</p><div class="a-act"><button type="button" class="ghost" data-invoice="'+esc(oid)+'">Print / Save invoice</button><button type="button" class="ghost" id="aDone">Continue shopping</button></div>'
+        :'<p>Your order was saved, but its invoice could not be loaded. Open My orders &amp; invoices later to retry.</p><div class="a-act"><button type="button" class="ghost" id="aDone">Continue shopping</button></div>';
       ok.innerHTML='<div class="tick">\u2713</div><h3>Order placed!</h3><span class="oid">'+esc(oid)+'</span>'+
         '<p>Thank you, '+esc(u.name.split(' ')[0])+'. We will deliver to<br><b>'+esc(a.name)+'</b>, '+esc(addrText(a))+'.</p>'+payNote+
+        invoiceAction+
         '<p>Tap below to send your order details to Aisha on WhatsApp so we can confirm it quickly.</p>'+
-        '<div class="a-act"><a class="btn-primary" target="_blank" rel="noopener" href="https://wa.me/918427314999?text='+encodeURIComponent(msg)+'">Send order on WhatsApp</a><button type="button" class="ghost" id="aDone">Continue shopping</button></div>';
+        '<div class="a-act"><a class="btn-primary" target="_blank" rel="noopener" href="https://wa.me/918427314999?text='+encodeURIComponent(msg)+'">Send order on WhatsApp</a></div>';
       if(done)done();
     }).catch(function(error){
       $('#payErr').textContent=error.message||'Could not save your order. Please try again.';
@@ -497,13 +528,84 @@
   });
   document.addEventListener('keydown',function(e){if(e.key==='Escape')adClose()});
   $('#addrBtn').onclick=function(){$('#umenu').classList.remove('show');adOpen(null)};
+  var ordersModal=$('#ordersModal');
+  function ordersClose(){ordersModal.classList.remove('show');ordersModal.setAttribute('aria-hidden','true')}
+  function ordersPaint(){
+    var list=me()&&me().orders||[];
+    if(!list.length){$('#ordersList').innerHTML='<p class="orders-empty">No orders yet. Your completed checkouts will appear here.</p>';return}
+    $('#ordersList').innerHTML=list.map(function(order){
+      var date=new Date(order.date);
+      var dateText=isNaN(date.getTime())?'Date unavailable':date.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+      var invoice=order.invoice&&order.invoice.number;
+      var payment=order.pay||{};
+      return '<article class="order-card"><div class="order-card-head"><div><b>'+esc(order.id)+'</b><small>'+esc(dateText)+'</small></div><strong>'+money(order.total)+'</strong></div>'+
+        '<p>'+esc((order.items||[]).map(function(item){return item.name+' × '+item.qty}).join(', '))+'</p>'+
+        '<p class="order-payment">Payment: '+esc(payment.status||'Not available')+' · '+esc(payment.method||'Not available')+'</p>'+
+        (invoice?'<button class="ghost order-invoice" type="button" data-invoice="'+esc(order.id)+'">View / Print invoice · '+esc(invoice)+'</button>':'<small class="order-invoice-missing">Invoice is not available for this older order.</small>')+
+        '</article>';
+    }).join('');
+  }
+  function ordersOpen(){
+    $('#umenu').classList.remove('show');
+    ordersModal.classList.add('show');ordersModal.setAttribute('aria-hidden','false');
+    $('#ordersList').textContent='Loading your orders…';
+    refreshOrders().then(ordersPaint).catch(function(error){$('#ordersList').innerHTML='<p class="orders-error">'+esc(error.message||'Could not load your orders. Please try again.')+'</p>'});
+  }
+  $('#ordersBtn').onclick=ordersOpen;
+  $('#ordersClose').onclick=ordersClose;
+  ordersModal.addEventListener('mousedown',function(e){if(e.target===ordersModal)ordersClose()});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')ordersClose()});
+  function printInvoice(order){
+    if(!order||!order.invoice||!order.invoice.number){toast('This order does not have an invoice yet.');return}
+    var invoice=order.invoice,address=invoice.address||{},printWindow=window.open('','_blank');
+    if(!printWindow){toast('Allow pop-ups to open and print your invoice.');return}
+    printWindow.opener=null;
+    var date=new Date(invoice.issuedAt),dateText=isNaN(date.getTime())?'':date.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'});
+    var addressLines=[address.line,address.landmark?'Near '+address.landmark:'',[address.city,address.state].filter(Boolean).join(', '),address.pincode?'PIN '+address.pincode:''].filter(Boolean);
+    var items=(order.items||[]).map(function(item){
+      return '<tr><td>'+esc(item.name)+'</td><td>'+esc(item.type)+' · '+esc(item.size)+'</td><td>'+item.qty+'</td><td>'+money(item.price)+'</td><td>'+money(item.price*item.qty)+'</td></tr>';
+    }).join('');
+    var html='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Invoice '+esc(invoice.number)+'</title>'+
+      '<style>body{font:15px Arial,sans-serif;color:#29181d;margin:0;padding:32px}.invoice{max-width:820px;margin:auto}.top{display:flex;justify-content:space-between;border-bottom:2px solid #8e3a4e;padding-bottom:20px}.brand{font:32px Georgia,serif;color:#8e3a4e}.muted{color:#705e62;line-height:1.55}.meta{text-align:right}h1{font-size:24px;margin:28px 0 18px}.columns{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:22px 0}.columns h2{font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#8e3a4e}table{width:100%;border-collapse:collapse;margin:22px 0}th,td{text-align:left;padding:11px 8px;border-bottom:1px solid #e8d9d7}th{background:#fbf3f1;color:#62464d;font-size:12px;text-transform:uppercase}td:nth-child(n+3),th:nth-child(n+3){text-align:right}.total{text-align:right;font-size:20px;font-weight:bold;margin:20px 0}.note{border-top:1px solid #e8d9d7;padding-top:14px}.actions{display:flex;gap:10px;justify-content:center;margin:26px auto}.actions button{background:#8e3a4e;color:white;border:0;border-radius:24px;padding:12px 24px;font-size:15px;cursor:pointer}@media print{body{padding:0}.actions{display:none}.invoice{max-width:none}}</style></head><body><main class="invoice">'+
+      '<div class="top"><div><div class="brand">Veylora</div><div class="muted">Fashion Beyond Borders</div></div><div class="meta"><b>INVOICE</b><div>'+esc(invoice.number)+'</div><div class="muted">Issued '+esc(dateText)+'</div></div></div>'+
+      '<div class="columns"><section><h2>Billed to</h2><b>'+esc(invoice.name||'Customer')+'</b><div class="muted">'+esc(invoice.email||'')+'<br>'+esc(invoice.phone||'')+'</div></section><section><h2>Delivery address</h2><div class="muted">'+addressLines.map(esc).join('<br>')+'</div></section></div>'+
+      '<table><thead><tr><th>Item</th><th>Type / size</th><th>Qty</th><th>Unit price</th><th>Amount</th></tr></thead><tbody>'+items+'</tbody></table>'+
+      '<div class="total">Total: '+money(order.total)+'</div><div class="note"><b>Payment</b><div>'+esc(order.pay.method)+' · '+esc(order.pay.status)+(order.pay.utr?' · UTR '+esc(order.pay.utr):'')+'</div><div class="muted">Order '+esc(order.id)+' · '+esc(order.status||'Placed')+'</div></div>'+
+      '<div class="muted" style="text-align:center;margin-top:30px">Thank you for shopping with Veylora.</div></main><div class="actions"><button type="button" onclick="window.print()">Print / Save as PDF</button><button type="button" onclick="window.close()">Close</button></div></body></html>';
+    printWindow.document.open();printWindow.document.write(html);printWindow.document.close();
+  }
+  document.addEventListener('click',function(e){
+    var button=e.target.closest('[data-invoice]');if(!button)return;
+    var order=(me()&&me().orders||[]).filter(function(item){return item&&item.id===button.dataset.invoice})[0];
+    printInvoice(order);
+  });
   /* checkout from the cart: log in (or sign up) first, then pick / add an address */
   function checkout(sum){
     if(me()){adOpen(sum);return}
     afterAuth=function(){adOpen(sum)};open('login');toast('Log in or create an account to place your order');
   }
 
-  window.veyAuth={users:function(){return users},save:saveUsers,reload:function(){users=store.get('vey_profiles',{})},sha:sha256,open:open,checkout:checkout,isIn:function(){return !!(session&&users[session])}};
+  function reviewRequest(productId,review){
+    return authReady.then(function(){
+      if(!authAvailable)throw new Error(authError);
+      if(!me())throw new Error('Please log in to submit a review.');
+      return fetch('api/reviews.php',{
+        method:'POST',
+        credentials:'same-origin',
+        headers:{'Content-Type':'application/json','X-CSRF-Token':csrfToken},
+        body:JSON.stringify({product_id:productId,rating:review.rating,review_text:review.text})
+      }).then(function(response){
+        return response.text().then(function(text){
+          var result;
+          try{result=JSON.parse(text)}catch(_){throw new Error('The review API returned an invalid response. Run database/reviews.sql in Supabase.')}
+          if(result.csrf)csrfToken=result.csrf;
+          if(!response.ok){var error=new Error(result.error||'Could not save your review.');error.code=result.code||'';throw error}
+          return result;
+        });
+      });
+    });
+  }
+  window.veyAuth={users:function(){return users},save:saveUsers,reload:function(){users=store.get('vey_profiles',{})},sha:sha256,open:open,checkout:checkout,reviewRequest:reviewRequest,isIn:function(){return !!(session&&users[session])}};
 })();
 
 
@@ -628,6 +730,7 @@
   function saveCat(){try{localStorage.setItem('vey_catalog',JSON.stringify(CAT));return true}catch(e){return false}}
   applyCat();
   var byId=function(id){return P.filter(function(p){return p.id==id})[0]};
+  function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 
   /* ---- state ---- */
   var cart=store.get('vey_cart2',[]), wish=store.get('vey_wish',[]);
@@ -725,6 +828,7 @@
   var pm={id:null,size:null,qty:1};
   function openPM(id){
     var p=byId(id);pm={id:id,size:null,qty:1};
+    selectedRating=0;
     var img=$('#pmImg img');img.src=p.img;img.alt=p.name;img.style.objectPosition=p.pos;
     $('#pmImg').classList.remove('zoom');img.style.transformOrigin='50% 50%';
     $('#pmOff').textContent=p.off+'% OFF';$('#pmOff').style.display=p.off?'':'none';
@@ -738,10 +842,84 @@
      '<div class="pm-buy"><div class="qty big"><button id="qDec" aria-label="Decrease">−</button><span id="qVal">1</span><button id="qInc" aria-label="Increase">+</button></div>'+
      '<button class="btn-primary" id="pmAdd" type="button">Add to Cart</button>'+
      '<button class="heart wide'+(wish.indexOf(id)>-1?' on':'')+'" id="pmHeart" aria-label="Add to wishlist">'+heart+'</button></div>'+
-     '<ul class="pm-perks"><li>Free shipping</li><li>Easy returns</li><li>Secure checkout</li></ul>';
+     '<ul class="pm-perks"><li>Free shipping</li><li>Easy returns</li><li>Secure checkout</li></ul>'+
+     '<section class="pm-reviews" aria-labelledby="pmReviewsTitle"><h4 id="pmReviewsTitle">Customer ratings &amp; reviews</h4><div id="pmReviewSummary" class="pm-review-summary">Loading reviews…</div>'+
+     '<div id="pmReviewForm"></div><div id="pmReviewList" class="pm-review-list" aria-live="polite"></div></section>';
     $('#pm').classList.add('show');$('#pm').setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
     $('#pmInfo').scrollTop=0;
+    loadReviews(id);
   }
+  var selectedRating=0,reviewBusy=false;
+  function reviewStars(rating){
+    var stars='';
+    for(var i=1;i<=5;i++)stars+='<span class="'+(i<=rating?'filled':'')+'" aria-hidden="true">★</span>';
+    return stars;
+  }
+  function paintReviewForm(myReview){
+    var root=$('#pmReviewForm');
+    if(!window.veyAuth||!veyAuth.isIn()){
+      root.innerHTML='<p class="pm-review-signin">Sign in to rate this product and share a review.</p><button type="button" class="pm-review-login" id="pmReviewLogin">Sign in to review</button>';
+      return;
+    }
+    var rating=myReview?Number(myReview.rating):selectedRating;
+    selectedRating=rating;
+    root.innerHTML='<form id="pmReviewFormInner" class="pm-review-form"><label for="pmReviewText">'+(myReview?'Update your review':'Write a review')+'</label>'+
+      '<div class="pm-review-picker" role="group" aria-label="Your star rating">'+[1,2,3,4,5].map(function(n){return '<button type="button" data-review-rating="'+n+'" class="'+(n<=rating?'selected':'')+'" aria-label="'+n+' star'+(n===1?'':'s')+'" aria-pressed="'+(n===rating?'true':'false')+'">★</button>'}).join('')+'</div>'+
+      '<textarea id="pmReviewText" maxlength="1000" placeholder="Share your thoughts (optional)">'+esc(myReview?myReview.review_text:'')+'</textarea>'+
+      '<button class="pm-review-submit" type="submit" '+(reviewBusy?'disabled':'')+'>'+(reviewBusy?'Saving…':myReview?'Update review':'Submit review')+'</button></form>';
+  }
+  function paintReviews(result){
+    var reviews=result.reviews||[],sum=reviews.reduce(function(total,item){return total+Number(item.rating)},0),average=reviews.length?sum/reviews.length:0;
+    $('#pmReviewSummary').innerHTML=reviews.length
+      ?'<span class="pm-review-stars" aria-label="'+average.toFixed(1)+' out of 5 stars">'+reviewStars(Math.round(average))+'</span> <b>'+average.toFixed(1)+'</b> · '+reviews.length+' '+(reviews.length===1?'review':'reviews')
+      :'<span class="pm-review-stars">'+reviewStars(0)+'</span> No ratings yet';
+    paintReviewForm(result.my_review||null);
+    $('#pmReviewList').innerHTML=reviews.length?reviews.map(function(review){
+      var d=new Date(review.created_at),date=isNaN(d.getTime())?'':d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+      return '<article class="pm-review"><div class="pm-review-meta"><b>'+esc(review.reviewer_name)+'</b><time>'+esc(date)+'</time></div>'+
+        '<div class="pm-review-stars" aria-label="'+Number(review.rating)+' out of 5 stars">'+reviewStars(Number(review.rating))+'</div>'+
+        (review.review_text?'<p>'+esc(review.review_text).replace(/\n/g,'<br>')+'</p>':'')+'</article>';
+    }).join(''):'<p class="pm-review-empty">Be the first to share your experience.</p>';
+  }
+  function loadReviews(id){
+    $('#pmReviewSummary').textContent='Loading reviews…';$('#pmReviewForm').textContent='';$('#pmReviewList').textContent='';
+    fetch('api/reviews.php?product_id='+encodeURIComponent(id),{credentials:'same-origin',cache:'no-store'}).then(function(response){
+      return response.json().catch(function(){return{error:'The review service returned an invalid response.'}}).then(function(result){
+        if(!response.ok)throw new Error(result.error||'Could not load reviews.');
+        return result;
+      });
+    }).then(function(result){if(pm.id===id)paintReviews(result)}).catch(function(error){
+      if(pm.id===id)$('#pmReviewSummary').textContent=error.message||'Could not load product reviews.';
+    });
+  }
+  $('#pmInfo').addEventListener('click',function(e){
+    var star=e.target.closest('[data-review-rating]');
+    if(star){
+      selectedRating=Number(star.dataset.reviewRating);
+      $$('#pmReviewForm [data-review-rating]').forEach(function(button){
+        button.classList.toggle('selected',Number(button.dataset.reviewRating)<=selectedRating);
+        button.setAttribute('aria-pressed',String(Number(button.dataset.reviewRating)===selectedRating));
+      });
+      return;
+    }
+    if(e.target.id==='pmReviewLogin'&&window.veyAuth)veyAuth.open('login');
+  });
+  $('#pmInfo').addEventListener('submit',function(e){
+    if(e.target.id!=='pmReviewFormInner')return;
+    e.preventDefault();
+    if(reviewBusy)return;
+    if(selectedRating<1||selectedRating>5){$('#pmReviewSummary').textContent='Choose a star rating before submitting your review.';return}
+    if(!window.veyAuth||!veyAuth.isIn()){paintReviewForm(null);return}
+    reviewBusy=true;
+    var id=pm.id,text=$('#pmReviewText').value;
+    paintReviewForm({rating:selectedRating,review_text:text});
+    veyAuth.reviewRequest(id,{rating:selectedRating,text:text}).then(function(){
+      reviewBusy=false;loadReviews(id);toast('Your review has been saved.');
+    }).catch(function(error){
+      reviewBusy=false;
+      if(pm.id===id){$('#pmReviewSummary').textContent=error.message||'Could not save your review.';paintReviewForm({rating:selectedRating,review_text:text})}
+    });
+  });
   function closePM(){$('#pm').classList.remove('show');$('#pm').setAttribute('aria-hidden','true');document.body.style.overflow=''}
   function step(d){var i=0;list.forEach(function(p,k){if(p.id===pm.id)i=k});openPM(list[(i+d+list.length)%list.length].id)}
   $('#pmClose').onclick=closePM;$('#pmPrev').onclick=function(){step(-1)};$('#pmNext').onclick=function(){step(1)};

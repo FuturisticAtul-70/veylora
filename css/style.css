@@ -231,6 +231,19 @@ h1 em{font-style:italic;color:#9b3f58;letter-spacing:-1px;display:inline-block;p
 .a-ok .oid{display:inline-block;margin-top:12px;background:#f7e1db;color:var(--wine);padding:6px 16px;border-radius:30px;letter-spacing:1px;font-size:14px}
 .a-ok .a-act{justify-content:center;position:static}
 .a-ok a.btn-primary{text-decoration:none}
+.orders-card{width:min(760px,100%)}
+.order-list{display:grid;gap:12px}
+.order-card{border:1.5px solid #e3c3bd;border-radius:16px;background:#fff;padding:16px}
+.order-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.order-card-head b{display:block;color:var(--ink)}
+.order-card-head small,.order-invoice-missing{display:block;color:var(--text);font-size:13px;margin-top:3px}
+.order-card-head strong{color:var(--wine);white-space:nowrap}
+.order-card p{color:var(--text);font-size:14px;line-height:1.5;margin-top:10px}
+.order-card .order-payment{font-size:13px}
+.order-invoice{margin-top:12px;border:1.5px solid var(--wine);background:transparent;color:var(--wine);border-radius:44px;padding:10px 18px;font-family:inherit;font-size:14px;cursor:pointer}
+.order-invoice:hover{background:var(--wine);color:#fff}
+.orders-empty,.orders-error{padding:18px 0;color:var(--text)}
+.orders-error{color:#a52a2a}
 .umenu button+button{margin-top:8px}
 .auth-card .sticky-act{position:sticky;bottom:0;background:#fff8f5;padding:10px 0 4px;z-index:2}
 @media (max-width:520px){.addr-card{padding:26px 18px 22px}.a-grid{grid-template-columns:1fr}.addr-card h3{font-size:30px}.a-act{bottom:-22px}}
@@ -584,6 +597,28 @@ h1 em{font-style:italic;color:#9b3f58;letter-spacing:-1px;display:inline-block;p
 .qty.big button{border:0;width:28px;height:28px}
 .pm-perks{list-style:none;display:flex;gap:22px;margin-top:16px;font-size:13.5px;color:var(--text);flex-wrap:wrap}
 .pm-perks li::before{content:"✓";color:var(--wine);margin-right:7px;font-weight:600}
+.pm-reviews{margin-top:24px;padding-top:20px;border-top:1px solid #e8cfc9}
+.pm-reviews h4{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:var(--ink)}
+.pm-review-summary{margin:8px 0 16px;color:var(--text);font-size:14px}
+.pm-review-summary b{color:var(--ink)}
+.pm-review-stars{display:inline-flex;gap:2px;color:#cbbfc0;font-size:17px;letter-spacing:1px}
+.pm-review-stars .filled{color:#c48a2d}
+.pm-review-form{display:grid;gap:8px;padding:14px;background:#fff;border:1px solid #ecd3cc;border-radius:16px}
+.pm-review-form label{font-size:14px;font-weight:600}
+.pm-review-picker{display:flex;gap:4px}
+.pm-review-picker button{border:0;background:none;color:#cbbfc0;font-size:27px;line-height:1.2;cursor:pointer;padding:0 3px}
+.pm-review-picker button.selected{color:#c48a2d}
+.pm-review-picker button:focus-visible,.pm-review-login:focus-visible,.pm-review-submit:focus-visible{outline:2px solid var(--wine);outline-offset:2px}
+.pm-review-form textarea{width:100%;min-height:76px;resize:vertical;border:1px solid #e3c3bd;border-radius:10px;padding:10px;font:inherit;color:var(--ink)}
+.pm-review-submit,.pm-review-login{justify-self:start;border:1px solid var(--wine);background:var(--wine);color:#fff;border-radius:30px;padding:9px 18px;font:inherit;cursor:pointer}
+.pm-review-submit:disabled{opacity:.6;cursor:wait}
+.pm-review-login{background:transparent;color:var(--wine)}
+.pm-review-signin,.pm-review-empty{font-size:14px;color:var(--text);margin:10px 0}
+.pm-review-list{display:grid;gap:12px;margin-top:14px}
+.pm-review{padding:12px 0;border-bottom:1px solid #ecd3cc}
+.pm-review-meta{display:flex;justify-content:space-between;gap:12px;font-size:14px}
+.pm-review-meta time{color:var(--text);font-size:12px}
+.pm-review>p{margin-top:6px;color:var(--text);font-size:14px;line-height:1.55;overflow-wrap:anywhere}
 
 /* ============ CART DRAWER ============ */
 .cscrim{position:fixed;inset:0;background:rgba(40,10,20,.45);opacity:0;pointer-events:none;transition:.35s;z-index:94}

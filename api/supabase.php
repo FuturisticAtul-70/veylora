@@ -6,7 +6,8 @@ final class SupabaseException extends RuntimeException
     public function __construct(
         public readonly int $status,
         string $message,
-        public readonly string $providerCode = ''
+        public readonly string $providerCode = '',
+        public readonly ?int $retryAfterSeconds = null
     ) {
         parent::__construct($message);
     }
@@ -117,6 +118,13 @@ function supabaseRequest(
         CURLOPT_TIMEOUT => 15,
         CURLOPT_HTTPHEADER => $headers,
     ];
+    $retryAfterSeconds = null;
+    $options[CURLOPT_HEADERFUNCTION] = static function ($curl, string $header) use (&$retryAfterSeconds): int {
+        if (preg_match('/^Retry-After:\s*(\d+)\s*$/i', trim($header), $matches)) {
+            $retryAfterSeconds = (int)$matches[1];
+        }
+        return strlen($header);
+    };
 
     if ($body !== null) {
         $headers[] = 'Content-Type: application/json';
@@ -148,7 +156,8 @@ function supabaseRequest(
         throw new SupabaseException(
             $status,
             is_string($message) ? $message : 'Supabase request failed.',
-            is_string($providerCode) ? $providerCode : ''
+            is_string($providerCode) ? $providerCode : '',
+            $retryAfterSeconds
         );
     }
 

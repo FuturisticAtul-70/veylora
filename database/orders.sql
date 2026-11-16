@@ -20,6 +20,51 @@ create table if not exists public.orders (
   )
 );
 
+alter table public.orders
+  add column if not exists invoice_number text,
+  add column if not exists invoice_issued_at timestamptz,
+  add column if not exists billing_name text,
+  add column if not exists billing_email text,
+  add column if not exists billing_phone text,
+  add column if not exists billing_address jsonb;
+
+update public.orders o
+set invoice_number = 'INV-' || o.order_number,
+    invoice_issued_at = o.created_at,
+    billing_name = coalesce(
+      (select a.full_name from public.addresses a where a.id = o.address_id),
+      (select p.full_name from public.profiles p where p.id = o.user_id),
+      (select nullif(u.raw_user_meta_data ->> 'name', '') from auth.users u where u.id = o.user_id),
+      (select split_part(u.email, '@', 1) from auth.users u where u.id = o.user_id),
+      'Customer'
+    ),
+    billing_email = coalesce(
+      (select u.email from auth.users u where u.id = o.user_id),
+      ''
+    ),
+    billing_phone = (select a.mobile_number from public.addresses a where a.id = o.address_id),
+    billing_address = (
+      select jsonb_build_object(
+        'line', a.address_line,
+        'city', a.city,
+        'state', a.state,
+        'pincode', a.pincode,
+        'landmark', a.landmark
+      )
+      from public.addresses a
+      where a.id = o.address_id
+    )
+where o.invoice_number is null;
+
+alter table public.orders
+  alter column invoice_number set not null,
+  alter column invoice_issued_at set not null,
+  alter column billing_name set not null,
+  alter column billing_email set not null;
+
+create unique index if not exists orders_invoice_number_idx
+  on public.orders (invoice_number);
+
 create index if not exists orders_user_created_idx
   on public.orders (user_id, created_at desc);
 
